@@ -61,8 +61,8 @@ def cost_function(X, y, theta_1, theta_2, lambda_=0):
         delta2 = np.delete(delta2, 0)
         delta2 = delta2 * sigmoid_gradient(z2)
 
-        theta_1_grad += np.dot(delta2.T, a1)
-        theta_2_grad += np.dot(delta3.T, a2)
+        theta_1_grad += np.outer(delta2, a1)
+        theta_2_grad += np.outer(delta3, a2)
 
 
 def main():
