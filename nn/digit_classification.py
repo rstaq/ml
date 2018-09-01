@@ -12,11 +12,22 @@ def plot_rand_digits(X, y):
         plt.show()
 
 
+def rand_init_theta(rows, cols, epsilon=0.12):
+    return np.random.rand(rows, cols) * (2 * epsilon) - epsilon
+
+
 def main():
+    input_layer_size = 400
+    hidden_layer_size = 25
+    output_layer_size = 10
+
     data = sio.loadmat("data.mat")
     X = data.get('X')
     y = data.get('y')
     # plot_rand_digits(X, y)
+
+    theta_1 = rand_init_theta(hidden_layer_size, input_layer_size + 1)
+    theta_2 = rand_init_theta(output_layer_size, hidden_layer_size + 1)
 
 
 if __name__ == '__main__':
