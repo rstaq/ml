@@ -20,6 +20,51 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 
+def sigmoid_gradient(z):
+    return sigmoid(z) * (1 - sigmoid(z))
+
+
+def convert_y(y):
+    """
+    Converts the predicted class in an np.array of shape 10x1
+    where the predicted output is 1 and the other values are 0
+    :param y: predicted output
+    :return: np.array of shape 10x1
+    """
+    y_ = np.zeros(10)
+    if y == 10:
+        y_[0] = 1
+    else:
+        y_[y] = 1
+    return y_
+
+
+def cost_function(X, y, theta_1, theta_2, lambda_=0):
+    m = len(X)
+    J = 0
+    theta_1_grad = np.zeros((len(theta_1), len(theta_1.T)))
+    theta_2_grad = np.zeros((len(theta_2), len(theta_2.T)))
+    X = np.c_[np.ones(len(X)), X]
+    for i in range(m):
+        y = convert_y(y[i])
+
+        a1 = X[i, :]
+        z2 = np.dot(a1, theta_1.T)
+        a2 = sigmoid(z2)
+        a2 = np.insert(a2, 0, 1, axis=0)
+        z3 = np.dot(a2, theta_2.T)
+        a3 = sigmoid(z3)
+        J += (1 / m) * (np.dot(-y, np.log(a3).T) - np.dot(1 - y, np.log(1 - a3).T))
+
+        delta3 = a3 - y
+        delta2 = np.dot(delta3, theta_2)
+        delta2 = np.delete(delta2, 0)
+        delta2 = delta2 * sigmoid_gradient(z2)
+
+        theta_1_grad += np.dot(delta2.T, a1)
+        theta_2_grad += np.dot(delta3.T, a2)
+
+
 def main():
     input_layer_size = 400
     hidden_layer_size = 25
@@ -32,6 +77,8 @@ def main():
 
     theta_1 = rand_init_theta(hidden_layer_size, input_layer_size + 1)
     theta_2 = rand_init_theta(output_layer_size, hidden_layer_size + 1)
+
+    J, grad = cost_function(X, y, theta_1, theta_2)
 
 
 if __name__ == '__main__':
