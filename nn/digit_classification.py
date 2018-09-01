@@ -16,6 +16,10 @@ def rand_init_theta(rows, cols, epsilon=0.12):
     return np.random.rand(rows, cols) * (2 * epsilon) - epsilon
 
 
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+
 def main():
     input_layer_size = 400
     hidden_layer_size = 25
