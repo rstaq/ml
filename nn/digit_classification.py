@@ -54,6 +54,7 @@ def cost_function(X, y, theta_1, theta_2, lambda_=0):
     for i in range(m):
         y_ = convert_y(y[i])
 
+        # forward-propagation
         a1 = X[i, :]
         z2 = np.dot(a1, theta_1.T)
         a2 = sigmoid(z2)
@@ -62,6 +63,7 @@ def cost_function(X, y, theta_1, theta_2, lambda_=0):
         a3 = sigmoid(z3)
         J += (1 / m) * (np.dot(-y_, np.log(a3).T) - np.dot(1 - y_, np.log(1 - a3).T))
 
+        # back-propagation
         delta3 = a3 - y_
         delta2 = np.dot(delta3, theta_2)
         delta2 = np.delete(delta2, 0)
@@ -83,6 +85,25 @@ def cost_function(X, y, theta_1, theta_2, lambda_=0):
     theta_2_gradient = np.add(theta_2_gradient, lambda_ / m * theta_2_reg)
 
     return J, theta_1_gradient, theta_2_gradient
+
+
+def predict(X, theta_1, theta_2):
+    p = np.zeros((len(X), 1))
+    X = np.c_[np.ones(len(X)), X]
+    h1 = sigmoid(np.dot(X, theta_1.T))
+    h1 = np.c_[np.ones(len(h1)), h1]
+    h2 = sigmoid(np.dot(h1, theta_2.T))
+    p = np.argmax(h2, axis=1)
+    return p
+
+
+def check_predictions(y, p):
+    wrong_pred_index = []
+    for i in range(len(y)):
+        if p[i] + 1 != y[i]:
+            wrong_pred_index.append(i)
+
+    print("Number of wrong classified examples: {} -> {}%".format(len(wrong_pred_index), 100 / len(y) * len(wrong_pred_index)))
 
 
 def main():
@@ -109,8 +130,10 @@ def main():
         theta_2 -= theta_2_gradient
         J_costs.append(J)
         print("Iteration {} cost {}".format(i, J))
-
     plot_cost_function(J_costs)
+
+    p = predict(X, theta_1, theta_2)
+    check_predictions(y, p)
 
 
 if __name__ == '__main__':
