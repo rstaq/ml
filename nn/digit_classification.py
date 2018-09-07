@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import scipy.io as sio
 
 
-def plot_rand_digits(X, y):
-    for i in range(10):
+def plot_rand_digits(X, y, number_pictures=3):
+    for i in range(number_pictures):
         index = np.random.randint(0, len(X))
-        image = np.reshape(X[index, :], (20, 20))
+        image = np.reshape(X[index, :], (20, 20), order='F')
         plt.imshow(image, cmap='gray')
         plt.title(y[index])
+        plt.gray()
         plt.show()
 
 
@@ -21,6 +22,13 @@ def plot_cost_function(J_costs):
 
 
 def rand_init_theta(rows, cols, epsilon=0.12):
+    """
+    randomly initialize theta in the range of [-epsilon, +epsilon]
+    :param rows: number of rows of the output matrix
+    :param cols: number of columns of the output matrix
+    :param epsilon: range of each value
+    :return: rows x cols matrix of random initialized values
+    """
     return np.random.rand(rows, cols) * (2 * epsilon) - epsilon
 
 
@@ -103,7 +111,8 @@ def check_predictions(y, p):
         if p[i] + 1 != y[i]:
             wrong_pred_index.append(i)
 
-    print("Number of wrong classified examples: {} -> {}%".format(len(wrong_pred_index), 100 / len(y) * len(wrong_pred_index)))
+    print("Number of misclassified examples: {} -> {}%".format(len(wrong_pred_index), 100 / len(y) * len(wrong_pred_index)))
+    return wrong_pred_index
 
 
 def main():
@@ -116,7 +125,7 @@ def main():
     data = sio.loadmat("data.mat")
     X = data.get('X')
     y = data.get('y')
-    # plot_rand_digits(X, y)
+    plot_rand_digits(X, y)
 
     print("Randomly initializing theta")
     theta_1 = rand_init_theta(hidden_layer_size, input_layer_size + 1)
@@ -133,7 +142,7 @@ def main():
     plot_cost_function(J_costs)
 
     p = predict(X, theta_1, theta_2)
-    check_predictions(y, p)
+    p_false = check_predictions(y, p)
 
 
 if __name__ == '__main__':
