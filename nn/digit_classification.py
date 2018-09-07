@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
+import argparse
+import time
 
 
 def plot_rand_digits(X, y, number_pictures=3):
@@ -115,17 +117,15 @@ def check_predictions(y, p):
     return wrong_pred_index
 
 
-def main():
+def main(max_iter=400, lambda_=1.0):
     input_layer_size = 400
     hidden_layer_size = 25
     output_layer_size = 10
-    max_iter = 400
-    lambda_ = 1
 
     data = sio.loadmat("data.mat")
     X = data.get('X')
     y = data.get('y')
-    plot_rand_digits(X, y)
+    # plot_rand_digits(X, y)
 
     print("Randomly initializing theta")
     theta_1 = rand_init_theta(hidden_layer_size, input_layer_size + 1)
@@ -139,11 +139,37 @@ def main():
         theta_2 -= theta_2_gradient
         J_costs.append(J)
         print("Iteration {} cost {}".format(i, J))
-    plot_cost_function(J_costs)
+    # plot_cost_function(J_costs)
 
     p = predict(X, theta_1, theta_2)
     p_false = check_predictions(y, p)
+    return len(p_false)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--search', help="searches for the best values of max_iter and lambda",
+                        action='store_true', dest='search')
+    args = parser.parse_args()
+    if args.search:
+        start = time.time()
+        prev_false = 100000
+        best_iter = 0
+        best_lambda = 0
+        max_iter = [300, 600, 1000, 1300, 1600, 2000]
+        lambda_ = [0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5]
+        for iter in max_iter:
+            for l in lambda_:
+                start_inner = time.time()
+                curr_false = main(iter, l)
+                if curr_false < prev_false:
+                    prev_false = curr_false
+                    best_iter = iter
+                    best_lambda = l
+                end_inner = time.time()
+                print("Duration for {} iteration and lambda {}: {}".format(iter, l, end_inner - start_inner))
+        print("Best number of iteration: {}\nBest value of lambda: {}".format(best_iter, best_lambda))
+        end = time.time()
+        print("Duration of the search: {}".format(end - start))
+    else:
+        main()
