@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
+import time
 
 
 def plot_rand_digits(X, y, number_pictures=3):
@@ -52,7 +53,7 @@ def convert_y(y):
     return y_
 
 
-def cost_function(X, y, theta_1, theta_2, lambda_=0):
+def cost_function(X, y, theta_1, theta_2, lambda_=0.0):
     m = len(X)
     J = 0
     theta_1_gradient = np.zeros((len(theta_1), len(theta_1.T)))
@@ -120,12 +121,12 @@ def main():
     hidden_layer_size = 25
     output_layer_size = 10
     max_iter = 400
-    lambda_ = 1
+    lambda_ = 0.5
 
     data = sio.loadmat("data.mat")
     X = data.get('X')
     y = data.get('y')
-    plot_rand_digits(X, y)
+    # plot_rand_digits(X, y)
 
     print("Randomly initializing theta")
     theta_1 = rand_init_theta(hidden_layer_size, input_layer_size + 1)
@@ -133,13 +134,25 @@ def main():
     J_costs = []
 
     # train theta
-    for i in range(max_iter):
+    # misclassified examples: 1
+    # iterations: 1494391
+    # duration: 7,055 days
+    J = 10
+    J_old = 100
+    delta = 0.0000000005
+    i = 1
+    start = time.time()
+    while J + delta < J_old:
+        J_old = J
         J, theta_1_gradient, theta_2_gradient = cost_function(X, y, theta_1, theta_2, lambda_)
         theta_1 -= theta_1_gradient
         theta_2 -= theta_2_gradient
         J_costs.append(J)
         print("Iteration {} cost {}".format(i, J))
-    plot_cost_function(J_costs)
+        i += 1
+    end = time.time()
+    # plot_cost_function(J_costs)
+    print("Duration: {}".format(end - start))
 
     p = predict(X, theta_1, theta_2)
     p_false = check_predictions(y, p)
